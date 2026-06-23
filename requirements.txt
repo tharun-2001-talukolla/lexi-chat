@@ -2,14 +2,11 @@ streamlit==1.38.0
 anyio==4.6.0
 peewee==3.17.6
 pgvector==0.3.4
-psycopg2-binary==2.9.10
 python-dotenv==1.0.1
-
 openai==2.43.0
 
 pdfplumber==0.11.4
-
 sentence-transformers==2.2.2
 
-# IMPORTANT: REMOVE torch version pin completely
-torch
+# CPU torch compatible for cloud
+torch==2.1.2
