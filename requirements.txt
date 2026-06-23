@@ -6,7 +6,6 @@ python-dotenv==1.0.1
 openai==2.43.0
 
 pdfplumber==0.11.4
-sentence-transformers==2.2.2
 
-# CPU torch compatible for cloud
-torch==2.1.2
+# IMPORTANT: avoid torch completely (cloud-safe)
+sentence-transformers==2.2.2
