@@ -13,4 +13,3 @@ st.markdown("""
 - Chat with your documents using Gemini
 - Tag-based document filtering
 """)
-

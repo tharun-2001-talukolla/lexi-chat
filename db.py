@@ -21,20 +21,22 @@ load_dotenv(dotenv_path=ENV_PATH, override=True)
 
 DB_NAME = os.getenv("POSTGRES_DB_NAME")
 HOST = os.getenv("POSTGRES_DB_HOST")
-PORT = os.getenv("POSTGRES_DB_PORT")
+PORT = int(os.getenv("POSTGRES_DB_PORT", 5432))
 USER = os.getenv("POSTGRES_DB_USER")
-PASSWORD = os.getenv("POSTGRES_DB_PASSWORD") or ""
+PASSWORD = os.getenv("POSTGRES_DB_PASSWORD", "")
 
 # =========================
-# DB CONNECTION
+# DATABASE CONNECTION
 # =========================
 db = PostgresqlDatabase(
     DB_NAME,
     host=HOST,
-    port=int(PORT),
+    port=PORT,
     user=USER,
-    password=PASSWORD
+    password=PASSWORD,
+    sslmode="require"
 )
+
 
 # =========================
 # BASE MODEL
@@ -62,44 +64,75 @@ class Tags(BaseModel):
 
 
 class DocumentTags(BaseModel):
-    document_id = ForeignKeyField(Documents, on_delete="CASCADE")
-    tag_id = ForeignKeyField(Tags, on_delete="CASCADE")
+    document_id = ForeignKeyField(
+        Documents,
+        backref="document_tags",
+        on_delete="CASCADE"
+    )
+
+    tag_id = ForeignKeyField(
+        Tags,
+        backref="tag_documents",
+        on_delete="CASCADE"
+    )
 
     class Meta:
         db_table = "document_tags"
 
 
 class DocumentInformationChunks(BaseModel):
-    document_id = ForeignKeyField(Documents, on_delete="CASCADE")
+    document_id = ForeignKeyField(
+        Documents,
+        backref="chunks",
+        on_delete="CASCADE"
+    )
+
     chunk = TextField()
-    embedding = VectorField()   # SAFE
+    embedding = VectorField()
 
     class Meta:
         db_table = "document_information_chunks"
 
 
 # =========================
-# DB HELPERS
+# CONNECT DATABASE
 # =========================
 def connect_db():
     if db.is_closed():
-        db.connect()
+        db.connect(reuse_if_open=True)
 
-        # ✅ SAFE VECTOR REGISTRATION
         try:
-            register_vector(db.connection)
-        except Exception:
-            pass
+            register_vector(db.connection())
+        except Exception as e:
+            print("Vector registration warning:", e)
 
 
+# =========================
+# CREATE TABLES
+# =========================
 def create_tables():
-    db.create_tables([
-        Documents,
-        Tags,
-        DocumentTags,
-        DocumentInformationChunks
-    ])
+    connect_db()
+
+    db.create_tables(
+        [
+            Documents,
+            Tags,
+            DocumentTags,
+            DocumentInformationChunks
+        ],
+        safe=True
+    )
 
 
+# =========================
 # AUTO CONNECT
+# =========================
 connect_db()
+
+
+# =========================
+# CREATE TABLES MANUALLY
+# =========================
+if __name__ == "__main__":
+    create_tables()
+    print("Tables created successfully!")
