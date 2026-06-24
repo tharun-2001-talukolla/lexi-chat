@@ -1,26 +1,18 @@
 streamlit==1.38.0
-
-# environment
-python-dotenv==1.0.1
 anyio==4.6.0
 
-# database
 peewee==3.17.6
 pgvector==0.3.4
 psycopg2-binary==2.9.10
 
-# llm
+python-dotenv==1.0.1
+
 openai==1.51.2
 httpx==0.27.2
 
-# pdf
 pdfplumber==0.11.4
 pypdf==6.0.0
 
-# embeddings
 sentence-transformers==5.6.0
-
-# dependencies
 torch==2.12.1
-transformers==5.12.1
-torchvision
+torchvision==0.27.1
